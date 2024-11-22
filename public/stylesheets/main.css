@@ -1,0 +1,136 @@
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    color: #333;
+    height: 100vh;
+    display: block;
+}
+
+.page-container {
+    text-align: center;
+    display: block;
+    height: 100%
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #222;
+    color: #fff;
+    height:10vh;
+}
+
+
+.logo-img {
+    max-width: 150px;
+}
+
+.nav-list {
+    list-style: none;
+    display: flex;
+}
+
+.nav-item {
+    margin: 0 20px;
+}
+
+.nav-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #d3a76e; /* Gold color */
+}
+
+/* Main Content */
+.main-content {
+    background: url("../images/main_background.jpg") no-repeat center center/cover;
+    color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    height: 85vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Welcome Section */
+.welcome-section {
+    margin-bottom: 40px;
+}
+
+.headline {
+    font-size: 50px;
+    margin-bottom: 10px;
+    color: #f8d743; /* Gold color */
+}
+
+.subheadline {
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+/* Auth Buttons */
+.auth-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.button {
+    padding: 15px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.primary-button {
+    background-color: #d3a76e; /* Gold color */
+    color: #fff;
+}
+
+.primary-button:hover {
+    background-color: #b29054; /* Darker gold */
+}
+
+.secondary-button {
+    background-color: #fff;
+    color: #333;
+    border: 2px solid #d3a76e;
+}
+
+.secondary-button:hover {
+    background-color: #f4f4f4;
+}
+
+/* Footer */
+.footer {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #888;
+    padding: 10px;
+    text-align: center;
+    hieght:5vh;
+}
+
+.footer p {
+    font-style: italic;
+}
