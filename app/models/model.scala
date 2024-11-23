@@ -32,9 +32,9 @@ class model @Inject() (config: Configuration) {
   def insertUser(user1: User): Future[String] = {
     user.flatMap{userCollection =>userCollection.insertOne(user1).toFuture().map(result =>result.getInsertedId.toString)}
   }
-  def findUserId(email: String): Future[Option[ObjectId]]={
+  def findUserId(email: String, password: String): Future[Option[ObjectId]]={
     user.flatMap{userCollection => {
-      userCollection.find(org.mongodb.scala.bson.BsonDocument("email" -> email)).headOption().map{
+      userCollection.find(org.mongodb.scala.bson.BsonDocument("email" -> email, "password" -> password)).headOption().map{
         case Some(tempUser) => Some(tempUser._id)
         case None => None
       }

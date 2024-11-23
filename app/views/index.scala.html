@@ -36,6 +36,7 @@
         @helper.inputText(signUpForm("Password"))
         <button class="button primary-button" type="submit">Sign Up</button>
       }
+      <h1>@request.flash.get("error")</h1>
     </div>
   </main>
 

@@ -33,7 +33,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
 
   val loginForm: Form[loginData] = Form(
     mapping(
-    "Email" -> text(5,8),
+    "Email" -> text(5,20),
     "Password" ->text(4)
     )(loginData.apply)(loginData.unapply)
   )
@@ -48,11 +48,19 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
   )
 
   def index: Action[AnyContent] = Action { implicit request => Ok(views.html.index(loginForm)(signUpForm))}
-  def login: Action[AnyContent] = Action { implicit request =>
+  def login: Action[AnyContent] = Action.async { implicit request =>
     loginForm.bindFromRequest().fold(
-      loginWithError =>BadRequest(views.html.index(loginWithError)(signUpForm)),
-      _ =>Redirect(routes.HomeController.user("32"))
-    )
+      loginWithError =>Future(BadRequest(views.html.index(loginWithError)(signUpForm))),
+      {
+        case loginData(email, password) => mod.findUserId(email, password).map {
+          case Some(userId) => Redirect(routes.HomeController.user(userId.toString)).withSession("userId" ->userId.toString)
+          case None => Redirect(routes.HomeController.index()).flashing("error" -> "user not found")
+        }
+        case _ => Future(Ok("not possible login"))
+      }
+    ).recover{
+      case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
+    }
   }
   def signUp: Action[AnyContent] = Action.async { implicit request =>
     signUpForm.bindFromRequest().fold(
@@ -60,17 +68,17 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
         println("gettin error")
         Future(BadRequest(views.html.index(loginForm)(signUpWithError)))
       },
-      form => (form match {
-        case signUpData(firstName, lastName, email, password)=> {
-          mod.insertUser(User(new ObjectId(),firstName, lastName, email, password, None, None)).map(userID => Redirect(routes.HomeController.user(userID)))
+      {
+        case signUpData(firstName, lastName, email, password) => {
+          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None)).map(userID => Redirect(routes.HomeController.user(userID)))
         }
-        case _ => Future(Ok("not possible"))
-      })
+        case _ => Future(Ok("not possible singnup"))
+      }
     ).recover{
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
   }
-  def user(id: String): Action[AnyContent] = Action {
-    Ok(s"hello user $id")
+  def user(id: String): Action[AnyContent] = Action { implicit request =>
+    request.session.get("userId").map(_=>Ok(s"hello user $id")).getOrElse(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
   }
 }
