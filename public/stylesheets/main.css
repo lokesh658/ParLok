@@ -143,3 +143,116 @@ body {
 .footer p {
     font-style: italic;
 }
+
+
+/* Product Container */
+    .prducts-container{
+        display: flex;
+        margin: 20px auto;
+        flex-direction: row wrap;
+        justify-content: space-between;
+    }
+    .product-container {
+      margin: 20px auto;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: row wrap;
+      gap: 20px;
+      flex-basis: 30%;
+    }
+    /* Product Image */
+    .product-image {
+      flex: 1 1 400px;
+      text-align: center;
+    }
+    .product-image img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+    /* Product Details */
+    .product-details {
+      flex: 1 1 600px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .product-details h2 {
+      margin: 0 0 10px;
+      font-size: 2em;
+      color: #333;
+    }
+    .product-details p {
+      margin: 10px 0;
+      color: #555;
+    }
+    .product-details .price {
+      font-size: 1.5em;
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .product-details .stock {
+      font-size: 1.2em;
+      color: #27ae60;
+    }
+    /* Button */
+    .product-details .buy-button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1em;
+      cursor: pointer;
+    }
+    .product-details .buy-button:hover {
+      background-color: #2980b9;
+    }
+
+    .section {
+        margin-bottom: 40px;
+    }
+
+    .about-image {
+        width: 100%;
+        height: auto;
+        margin-top: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Values Section */
+    h1 {
+        text-align: center;
+        font-size: 2.5em;
+        margin-bottom: 20px;
+    }
+
+    h2 {
+        font-size: 2em;
+        margin-bottom: 15px;
+    }
+
+    p {
+        font-size: 1.1em;
+        margin-bottom: 20px;
+    }
+
+    ul {
+        list-style-type: none;
+        padding-left: 20px;
+    }
+
+    ul li {
+        margin-bottom: 15px;
+    }
+
+    ul li strong {
+        font-weight: bold;
+        color: #333;
+    }
+

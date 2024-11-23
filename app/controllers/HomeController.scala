@@ -13,6 +13,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
+
+
 case class loginData(email: String, password: String)
 object loginData {
   def unapply(obj: loginData): Option[(String, String)] = {
@@ -78,8 +80,17 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
   }
-  def user(id: String): Action[AnyContent] = Action { implicit request =>
-    request.session.get("userId").map(_=>Ok(s"hello user $id")).getOrElse(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
+  def user(id: String): Action[AnyContent] = Action.async { implicit request =>
+    request.session.get("userId").map {
+      case id1 if (id1 == id) => mod.getAllProducts().map{allProducts => Ok(views.html.homePage(id)(allProducts))}
+      case _ => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
+    }.getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
+      .recover{
+      case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
+    }
+  }
+  def about(): Action[AnyContent] = Action{
+    Ok(views.html.about())
   }
   def logout(): Action[AnyContent] = Action{
     Redirect(routes.HomeController.index()).withNewSession

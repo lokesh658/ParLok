@@ -1,0 +1,70 @@
+@()
+
+@main("Jwellery Store") {
+<div class="page-container">
+    <header class="header">
+        <div class="logo">
+            <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="#shop" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- About Us Section -->
+    <section class="about-us">
+        <div class="container">
+            <h1>About Us</h1>
+            <p>Welcome to [Your Store Name], a place where elegance meets craftsmanship. We specialize in creating timeless jewelry pieces that celebrate life's most beautiful moments.</p>
+
+            <div class="section">
+                <h2>Our Story</h2>
+                <p>Founded in [Year], our jewelry store began with a simple goal: to create stunning, high-quality jewelry that lasts a lifetime. From humble beginnings in [City/Location], we've grown into a trusted name in the jewelry industry, known for our attention to detail and passion for creating exquisite designs.</p>
+                <img src="store-image.jpg" alt="Our Jewelry Store" class="about-image">
+            </div>
+
+            <div class="section">
+                <h2>Our Mission</h2>
+                <p>Our mission is to provide our customers with exceptional jewelry, crafted with care and precision. We strive to offer not only beautifully designed pieces but also a personalized experience for every customer. Whether you're looking for the perfect engagement ring, a meaningful gift, or something special for yourself, we are here to help.</p>
+            </div>
+
+            <div class="section">
+                <h2>Our Values</h2>
+                <ul>
+                    <li><strong>Quality:</strong> We use only the finest materials, from ethically sourced diamonds to high-quality metals, to ensure the longevity and beauty of every piece.</li>
+                    <li><strong>Craftsmanship:</strong> Our artisans are highly skilled, with years of experience in the art of jewelry making, ensuring each piece is crafted with precision and care.</li>
+                    <li><strong>Customer Care:</strong> We believe in providing personalized service, whether in-store or online, to ensure that every customer has a seamless and enjoyable shopping experience.</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Why Choose Us?</h2>
+                <p>At [Your Store Name], we go above and beyond to make sure our jewelry pieces are not just beautiful, but also meaningful. Each item is carefully designed to reflect the individual style and story of its wearer. Whether you're marking a milestone event, proposing to a loved one, or celebrating a personal achievement, we are honored to be part of your journey.</p>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
+    </footer>
+    <script>
+        function toggleForms(formtype){
+          if(formtype=='login'){
+              document.getElementById('loginForm').classList.add('active')
+              document.getElementById('signupForm').classList.remove('active')
+          }else{
+              document.getElementById('loginForm').classList.remove('active')
+              document.getElementById('signupForm').classList.add('active')
+          }
+        }
+    </script>
+</div>
+}
+

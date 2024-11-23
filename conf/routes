@@ -9,6 +9,8 @@ GET     /user/:userId               controllers.HomeController.user(userId)
 
 GET     /logout                     controllers.HomeController.logout()
 
+GET     /about                      controllers.HomeController.about()
+
 + nocsrf
 POST    /login                      controllers.HomeController.login()
 
