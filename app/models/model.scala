@@ -7,15 +7,16 @@ import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase, classTagT
 import org.mongodb.scala.bson.codecs.Macros._
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
+import org.mongodb.scala.bson.ObjectId
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Using,Success,Failure}
+import scala.util.{Failure, Success, Using}
 
 
 case class Address(street:String, city: String, pincode: String, state:String, country: String)
 
-case class User(firstName: String, lastName: String, email: String, phoneNumber: String, address:Address)
+case class User(_id:ObjectId,firstName: String, lastName: String, email: String, password: String, phoneNumber: Option[String], address:Option[Address])
 
 case class Product(name:String, description: String, price: Double, stock_quantity:Int)
 
@@ -28,17 +29,16 @@ class model @Inject() (config: Configuration) {
   val db: Future[MongoDatabase] = mongoClient.map(_.getDatabase("parlok").withCodecRegistry(codecRegistry))
   val user: Future[MongoCollection[User]] = db.map(_.getCollection("user"))
 
-  def insertUser(user1: User): Unit ={
-    user.onComplete{
-      case Success(userCollection) => {
-        userCollection.insertOne(user1).toFuture().onComplete {
-          case Success(_) =>
-            println(s"User ${user1.firstName} ${user1.lastName} inserted successfully.")
-          case Failure(exception) =>
-            println(s"Failed to insert user: ${exception.getMessage}")
-        }
+  def insertUser(user1: User): Future[String] = {
+    user.flatMap{userCollection =>userCollection.insertOne(user1).toFuture().map(result =>result.getInsertedId.toString)}
+  }
+  def findUserId(email: String): Future[Option[ObjectId]]={
+    user.flatMap{userCollection => {
+      userCollection.find(org.mongodb.scala.bson.BsonDocument("email" -> email)).headOption().map{
+        case Some(tempUser) => Some(tempUser._id)
+        case None => None
       }
-      case Failure(exception) => println(exception.getMessage)
+    }
     }
   }
 }

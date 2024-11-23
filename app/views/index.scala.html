@@ -1,4 +1,5 @@
-@()
+
+@(loginForm: Form[loginData])(signUpForm: Form[signUpData])(implicit request: MessagesRequestHeader)
 
 @main("Jwellery Store") {
 <div class="page-container">
@@ -23,8 +24,18 @@
     </div>
 
     <div class="auth-buttons">
-      <button class="button primary-button" onclick="window.location.href='login.html'">Login</button>
-      <button class="button secondary-button" onclick="window.location.href='register.html'">Register</button>
+      @helper.form(action = routes.HomeController.login){
+        @helper.inputText(loginForm("Email"))
+        @helper.inputText(loginForm("Password"))
+        <button  class="button primary-button" type="submit">Login</button>
+      }
+      @helper.form(action = routes.HomeController.signUp){
+        @helper.inputText(signUpForm("FirstName"))
+        @helper.inputText(signUpForm("LastName"))
+        @helper.inputText(signUpForm("Email"))
+        @helper.inputText(signUpForm("Password"))
+        <button class="button primary-button" type="submit">Sign Up</button>
+      }
     </div>
   </main>
 
@@ -33,3 +44,4 @@
   </footer>
 </div>
 }
+

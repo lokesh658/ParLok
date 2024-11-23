@@ -59,7 +59,7 @@ body {
 /* Main Content */
 .main-content {
     background: url("../images/main_background.jpg") no-repeat center center/cover;
-    color: #fff;
+    color: 000;
     border-radius: 10px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     text-align: center;
