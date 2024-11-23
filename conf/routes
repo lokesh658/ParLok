@@ -5,7 +5,9 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index()
 
-GET     /user/:userId                       controllers.HomeController.user(userId)
+GET     /user/:userId               controllers.HomeController.user(userId)
+
+GET     /logout                     controllers.HomeController.logout()
 
 + nocsrf
 POST    /login                      controllers.HomeController.login()

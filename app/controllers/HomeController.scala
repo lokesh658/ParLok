@@ -81,4 +81,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
   def user(id: String): Action[AnyContent] = Action { implicit request =>
     request.session.get("userId").map(_=>Ok(s"hello user $id")).getOrElse(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
   }
+  def logout(): Action[AnyContent] = Action{
+    Redirect(routes.HomeController.index()).withNewSession
+  }
 }

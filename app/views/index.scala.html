@@ -13,6 +13,7 @@
         <li class="nav-item"><a href="#shop" class="nav-link">Shop</a></li>
         <li class="nav-item"><a href="#about" class="nav-link">About</a></li>
         <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+        <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
       </ul>
     </nav>
   </header>
@@ -22,20 +23,35 @@
       <h1 class="headline">Welcome to Elegant Jewels</h1>
       <p class="subheadline">Your destination for premium jewelry</p>
     </div>
-
     <div class="auth-buttons">
-      @helper.form(action = routes.HomeController.login){
+      <!-- Login Form -->
+      <div class="form-container login-form active" id="loginForm">
+        <h2>Login</h2>
+        @helper.form(action = routes.HomeController.login){
         @helper.inputText(loginForm("Email"))
         @helper.inputText(loginForm("Password"))
         <button  class="button primary-button" type="submit">Login</button>
-      }
-      @helper.form(action = routes.HomeController.signUp){
+        }
+        <div class="toggle-link">
+          <p>Don't have an account? <button  onclick="toggleForms('signup')">Sign up</button></p>
+        </div>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="form-container signup-form" id="signupForm">
+        <h2>Sign Up</h2>
+        @helper.form(action = routes.HomeController.signUp){
         @helper.inputText(signUpForm("FirstName"))
         @helper.inputText(signUpForm("LastName"))
         @helper.inputText(signUpForm("Email"))
         @helper.inputText(signUpForm("Password"))
         <button class="button primary-button" type="submit">Sign Up</button>
-      }
+        }
+        <div class="toggle-link">
+          <p>Already have an account? <button onclick="toggleForms('login')">Login</button></p>
+        </div>
+      </div>
+
       <h1>@request.flash.get("error")</h1>
     </div>
   </main>
@@ -43,6 +59,17 @@
   <footer class="footer">
     <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
   </footer>
+  <script>
+    function toggleForms(formtype){
+      if(formtype=='login'){
+          document.getElementById('loginForm').classList.add('active')
+          document.getElementById('signupForm').classList.remove('active')
+      }else{
+          document.getElementById('loginForm').classList.remove('active')
+          document.getElementById('signupForm').classList.add('active')
+      }
+    }
+  </script>
 </div>
 }
 
