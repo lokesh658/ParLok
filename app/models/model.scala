@@ -8,6 +8,7 @@ import org.mongodb.scala.bson.codecs.Macros._
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
+import org.mongodb.scala.model.Filters.equal
 
 import java.util.Locale.Category
 import scala.concurrent.Future
@@ -21,21 +22,22 @@ case class User(_id: ObjectId, firstName: String, lastName: String, email: Strin
 
 case class Product(_id: ObjectId, name:String, description: String, price: Double, stockQuantity: Int, category: String, imageURL: String)
 
-case class Cart(_id: ObjectId, userId: ObjectId, productId: ObjectId, quantity: Int)
+case class CartItem(_id: ObjectId, userId: String, productId: String, quantity: Int)
 
-case class OrderItem(_id: ObjectId, orderId: ObjectId, productId: ObjectId, quantity: Int)
+case class OrderItem(_id: ObjectId, orderId: String, productId: String, quantity: Int)
 
-case class Order(_id: ObjectId, userId: ObjectId, orderItems: List[OrderItem], shippingAddress: Address, date: String)
+case class Order(_id: ObjectId, userId: String, orderItems: List[OrderItem], shippingAddress: Address, date: String)
 
 @Singleton
 class model @Inject() (config: Configuration) {
-  val codecRegistry = fromRegistries( fromProviders(classOf[User], classOf[Product], classOf[Address], classOf[Cart], classOf[OrderItem], classOf[Order]),DEFAULT_CODEC_REGISTRY)
+  val codecRegistry = fromRegistries( fromProviders(classOf[User], classOf[Product], classOf[Address], classOf[CartItem], classOf[OrderItem], classOf[Order]),DEFAULT_CODEC_REGISTRY)
   val url: String = config.get[String]("Database.url")
 
   val mongoClient: Future[MongoClient] = Future{MongoClient(url)}
   val db: Future[MongoDatabase] = mongoClient.map(_.getDatabase("parlok").withCodecRegistry(codecRegistry))
   val user: Future[MongoCollection[User]] = db.map(_.getCollection("user"))
   val product: Future[MongoCollection[Product]] = db.map(_.getCollection("product"))
+  val cart: Future[MongoCollection[CartItem]] =db.map(_.getCollection("cart"))
 
   def insertUser(user1: User): Future[String] = {
     user.flatMap{userCollection =>userCollection.insertOne(user1).toFuture().map(result =>result.getInsertedId.toString)}
@@ -54,6 +56,28 @@ class model @Inject() (config: Configuration) {
       productCollection.find().toFuture().map(_.toList)
     }
   }
-
-
+  def addItemInCart(productId: String, userId: String, quantity: Int) : Future[String] = {
+    cart.flatMap{ cartCollection =>
+      cartCollection.insertOne(CartItem(new ObjectId, userId, productId, quantity)).toFuture().map(result => result.getInsertedId.toString)
+    }
+  }
+  def getProduct(productId: String): Future[Option[Product]] = {
+    println("going in product")
+    product.flatMap{ productCollection =>
+      productCollection.find(equal("_id",new ObjectId(productId))).headOption()
+    }
+  }
+  def getCartItems(userId: String): Future[List[(Product,Int)]] = {
+    cart.flatMap{ cartCollection =>
+      val converted: ObjectId = new ObjectId(userId)
+      cartCollection.find(equal("userId",converted)).toFuture.map(_.toList).flatMap(
+        itemList => Future.sequence(itemList.map{
+          case CartItem(_, _, productId, quantity) => getProduct(productId).map{
+            case Some(product) => Some(product, quantity)
+            case None => None
+          }
+        }).map(_.flatten)
+      )
+    }
+  }
 }

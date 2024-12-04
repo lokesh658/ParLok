@@ -3,10 +3,11 @@ package controllers
 import play.api.mvc._
 
 import javax.inject._
-import models.{Address, Product, User, model}
+import models.{Address, Product, User, model, CartItem}
 import org.mongodb.scala.bson.ObjectId
 import play.api.data._
 import play.api.data.Forms._
+import play.api.data.validation.Constraints._
 
 import scala.util._
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,6 +30,13 @@ object signUpData {
   }
 }
 
+case class cartData(productId: String, userId: String, quantity: Int)
+object cartData {
+  def unapply(obj:cartData) :Option[(String, String, Int)] = {
+    Some(obj.productId, obj.userId, obj.quantity)
+  }
+}
+
 
 @Singleton
 class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) extends MessagesAbstractController(cc) {
@@ -47,6 +55,14 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       "Email" -> text,
       "Password" -> text
     )(signUpData.apply)(signUpData.unapply)
+  )
+
+  val cartForm: Form[cartData] = Form(
+    mapping(
+      "productId" -> text,
+      "userId" -> text,
+      "quantity" -> number
+    )(cartData.apply)(cartData.unapply)
   )
 
   def index: Action[AnyContent] = Action { implicit request => Ok(views.html.index(loginForm)(signUpForm))}
@@ -82,13 +98,37 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
   }
   def user(id: String): Action[AnyContent] = Action.async { implicit request =>
     request.session.get("userId").map {
-      case id1 if (id1 == id) => mod.getAllProducts().map{allProducts => Ok(views.html.homePage(id)(allProducts))}
+      case id1 if (id1 == id) => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(id)(allProducts)(cartForm))}
       case _ => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
     }.getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
       .recover{
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
   }
+  def addCart(): Action[AnyContent] = Action.async { implicit request =>
+    cartForm.bindFromRequest().fold(
+      cartFormError => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(request.session.get("userId").getOrElse("not Possible"))(allProducts)(cartFormError))},
+      {
+        case cartData(productId, userId, quantity) => mod.addItemInCart(productId, userId, quantity).map(_=>Redirect(routes.HomeController.user(userId)))
+      }
+    ).recover{
+      case ex: Exception => InternalServerError("An error occured "+ ex.getMessage)
+    }
+
+  }
+  def getCartItems(): Action[AnyContent] =Action.async{ implicit request =>
+    request.session.get("userId")
+      .map(userId =>mod.getCartItems(userId)
+        .map{cartItems =>
+          println(cartItems.length)
+          Ok(views.html.cartItems(userId)(cartItems))}
+      )
+      .getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
+      .recover{
+        case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
+      }
+  }
+
   def about(): Action[AnyContent] = Action{
     Ok(views.html.about())
   }

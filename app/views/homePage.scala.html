@@ -1,8 +1,9 @@
-@(id: String)(product: List[Product])
+@import helper._
+@(id: String)(product: List[Product])(cartForm: Form[cartData])(implicit request: MessagesRequestHeader)
 
 @main("Jwellery Store") {
 @if(product.isEmpty){
-    <h1>"no products found"</h1>
+<h1 xmlns="http://www.w3.org/1999/html">"no products found"</h1>
 }else{
     <header class="header">
         <div class="logo">
@@ -14,6 +15,7 @@
                 <li class="nav-item"><a href="#shop" class="nav-link">Shop</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
             </ul>
         </nav>
@@ -33,10 +35,32 @@
                     <p class="price">@prod.price</p>
                     <p><strong>Category:</strong> @prod.category</p>
                     <p class="stock">In Stock: @prod.stockQuantity</p>
-                    <button class="buy-button">Buy Now</button>
+                    <p>quantity needed</p>
+                    <input type="number"  id="item-quantity-@prod._id.toString" min="1"  value="1" required/>
+                    <div class="add-buttons">
+                        @helper.form(action = routes.HomeController.addCart, 'id -> s"cart-form-${prod._id.toString}"){
+                            @helper.inputText(cartForm("quantity"), 'type -> "hidden", 'id -> s"cartQuantity-${prod._id.toString}")
+                            @helper.inputText(cartForm("userId"), 'type -> "hidden", 'id -> s"cartUserId-${prod._id.toString}")
+                            @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> s"cartProductId-${prod._id.toString}")
+                            <button type="button" onclick="addToCart('@id', '@(prod._id.toString)')" >Add To Cart</button>
+                        }
+                        <button class="buy-button" >Buy Now</button>
+                    </div>
                 </div>
+
             </div>
         }
+        <script>
+            function addToCart(userId, productId){
+                const num = document.getElementById(`item-quantity-${productId}`).value
+                const form = document.getElementById(`cart-form-${productId}`)
+                console.log("called function")
+                document.getElementById(`cartQuantity-${productId}`).value = num
+                document.getElementById(`cartUserId-${productId}`).value = userId
+                document.getElementById(`cartProductId-${productId}`).value= productId
+                form.submit()
+            }
+        </script>
     </div>
 }
 }

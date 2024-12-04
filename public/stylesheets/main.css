@@ -199,9 +199,16 @@ body {
       color: #27ae60;
     }
     /* Button */
-    .product-details .buy-button {
-      margin-top: 20px;
-      padding: 10px 20px;
+    .product-details .add-buttons {
+        margin-top: 20px;
+        padding: 10px 20px;
+        width:100%;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-between;
+    }
+    .product-details .add-button .buy-button, .product-details .add-button .buy-button {
+      flex-basis: 50%;
       background-color: #3498db;
       color: white;
       border: none;
