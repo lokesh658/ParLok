@@ -83,7 +83,6 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
   def signUp: Action[AnyContent] = Action.async { implicit request =>
     signUpForm.bindFromRequest().fold(
       signUpWithError =>{
-        println("gettin error")
         Future(BadRequest(views.html.index(loginForm)(signUpWithError)))
       },
       {
@@ -119,9 +118,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
   def getCartItems(): Action[AnyContent] =Action.async{ implicit request =>
     request.session.get("userId")
       .map(userId =>mod.getCartItems(userId)
-        .map{cartItems =>
-          println(cartItems.length)
-          Ok(views.html.cartItems(userId)(cartItems))}
+        .map{cartItems => Ok(views.html.cartItems(userId)(cartItems))}
       )
       .getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
       .recover{

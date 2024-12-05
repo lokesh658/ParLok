@@ -10,7 +10,7 @@ import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
 import org.mongodb.scala.model.Filters.equal
 
-import java.util.Locale.Category
+import java.util.Locale.{Category, caseFoldLanguageTag}
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.{Failure, Success, Using}
@@ -62,15 +62,13 @@ class model @Inject() (config: Configuration) {
     }
   }
   def getProduct(productId: String): Future[Option[Product]] = {
-    println("going in product")
     product.flatMap{ productCollection =>
       productCollection.find(equal("_id",new ObjectId(productId))).headOption()
     }
   }
   def getCartItems(userId: String): Future[List[(Product,Int)]] = {
     cart.flatMap{ cartCollection =>
-      val converted: ObjectId = new ObjectId(userId)
-      cartCollection.find(equal("userId",converted)).toFuture.map(_.toList).flatMap(
+      cartCollection.find(equal("userId",userId)).toFuture.map(_.toList).flatMap(
         itemList => Future.sequence(itemList.map{
           case CartItem(_, _, productId, quantity) => getProduct(productId).map{
             case Some(product) => Some(product, quantity)
