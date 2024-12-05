@@ -1,4 +1,4 @@
-@()
+@(id: String)
 
 @main("Jwellery Store") {
 <div class="page-container">
@@ -8,10 +8,10 @@
         </div>
         <nav class="nav">
             <ul class="nav-list">
-                <li class="nav-item"><a href="#home" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="#shop" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.user(id)" class="nav-link">Shop</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
-                <li class="nav-item"><a href="#contact" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
             </ul>
         </nav>
@@ -54,17 +54,6 @@
     <footer class="footer">
         <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
     </footer>
-    <script>
-        function toggleForms(formtype){
-          if(formtype=='login'){
-              document.getElementById('loginForm').classList.add('active')
-              document.getElementById('signupForm').classList.remove('active')
-          }else{
-              document.getElementById('loginForm').classList.remove('active')
-              document.getElementById('signupForm').classList.add('active')
-          }
-        }
-    </script>
 </div>
 }
 

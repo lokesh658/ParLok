@@ -1,0 +1,49 @@
+@(id: String)
+
+@main("Jwellery Store") {
+<div class="page-container">
+    <header class="header">
+        <div class="logo">
+            <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.user(id)" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Contact Us Section -->
+    <section class="contact-info">
+        <div class="container">
+            <div class="contact-details">
+                <h2>Our Contact Information</h2>
+                <p><i class="fas fa-phone-alt"></i> Phone: +1 (800) 123-4567</p>
+                <p><i class="fas fa-envelope"></i> @{"Email: support@jewelrystore.com"}</p>
+                <p><i class="fas fa-map-marker-alt"></i> Address: 123 Diamond Ave, New York, NY 10001</p>
+            </div>
+
+            <!-- Social Media Section -->
+            <div class="social-media">
+                <h3>Follow Us:</h3>
+                <ul>
+                    <li><a href="https://facebook.com/jewelrystore" target="_blank" class="facebook"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                    <li><a href="https://instagram.com/jewelrystore" target="_blank" class="instagram"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li><a href="https://twitter.com/jewelrystore" target="_blank" class="twitter"><i class="fab fa-twitter"></i> Twitter</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="footer">
+        <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
+    </footer>
+
+</div>
+}
+

@@ -263,3 +263,135 @@ body {
         color: #333;
     }
 
+
+/* Contact Info Section */
+.contact-info {
+    background-color: #fff;
+    padding: 40px 20px;
+    margin-top: 40px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contact-details {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.contact-details h2 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.contact-details p {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #555;
+}
+
+.contact-details i {
+    color: #007BFF;
+    margin-right: 10px;
+}
+
+.social-media {
+    text-align: center;
+}
+
+.social-media h3 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+}
+
+.social-media ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.social-media li {
+    margin: 0;
+}
+
+.social-media a {
+    text-decoration: none;
+    font-size: 1.2rem;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.social-media a:hover {
+    color: #007BFF;
+}
+
+.social-media i {
+    margin-right: 8px;
+}
+/* home  */
+/* Hero Section */
+.hero {
+    background: url('@routes.Assets.versioned("images/hero-bg.jpg")') no-repeat center center;
+    background-size: cover;
+
+    text-align: center;
+    padding: 100px 20px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+.btn-primary {
+    background-color: #007BFF;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 30px;
+    border-radius: 4px;
+    font-size: 1.2rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Featured Products Section */
+.featured-products {
+    background-color: #fff;
+    padding: 50px 20px;
+    text-align: center;
+}
+
+.featured-products h2 {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+}
+
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+

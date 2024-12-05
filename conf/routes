@@ -7,13 +7,15 @@ GET     /                           controllers.HomeController.index()
 
 GET     /user/:userId               controllers.HomeController.user(userId)
 
-GET     /logout                     controllers.HomeController.logout()
-
-GET     /about                      controllers.HomeController.about()
-
 GET     /cartItems                  controllers.HomeController.getCartItems()
 
+GET     /about                     controllers.HomeController.about()
 
+GET     /contact                   controllers.HomeController.contact()
+
+GET     /logout                    controllers.HomeController.logout()
+
+GET     /home/:userId              controllers.HomeController.home(userId)
 
 + nocsrf
 POST    /login                      controllers.HomeController.login()

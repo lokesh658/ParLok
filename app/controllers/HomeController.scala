@@ -104,6 +104,15 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
   }
+  def home(id: String): Action[AnyContent] = Action.async{ implicit request =>
+    request.session.get("userId").map {
+        case id1 if (id1 == id) => mod.getAllProducts().map{allProducts =>Ok(views.html.home(id)(allProducts)(cartForm))}
+        case _ => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
+      }.getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
+      .recover{
+        case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
+      }
+  }
   def addCart(): Action[AnyContent] = Action.async { implicit request =>
     cartForm.bindFromRequest().fold(
       cartFormError => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(request.session.get("userId").getOrElse("not Possible"))(allProducts)(cartFormError))},
@@ -126,8 +135,11 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       }
   }
 
-  def about(): Action[AnyContent] = Action{
-    Ok(views.html.about())
+  def about(): Action[AnyContent] = Action{ implicit request =>
+   Ok(views.html.about(request.session.get("userId").getOrElse("random")))
+  }
+  def contact(): Action[AnyContent] = Action{ implicit request =>
+    Ok(views.html.contact(request.session.get("userId").getOrElse("random")))
   }
   def logout(): Action[AnyContent] = Action{
     Redirect(routes.HomeController.index()).withNewSession

@@ -1,0 +1,81 @@
+@import helper._
+@(id: String)(product: List[Product])(cartForm: Form[cartData])(implicit request: MessagesRequestHeader)
+
+@main("Jwellery Store") {
+@if(product.isEmpty){
+<h1 xmlns="http://www.w3.org/1999/html">"no products found"</h1>
+}else{
+    <header class="header">
+        <div class="logo">
+            <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
+        </div>
+        <nav class="nav">
+            <ul class="nav-list">
+                <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.user(id)" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+<!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Elegant Jewelry for Every Occasion</h1>
+            <p>Discover our stunning collection of handcrafted jewelry. Perfect for you or a loved one.</p>
+            <a href="@routes.HomeController.user(id)" class="btn-primary">Shop Now</a>
+        </div>
+    </section>
+    <div class="featured-products">
+        <h2>Featured Collections</h2>
+        <div class="products-grid">
+            @for(prod <- product){
+                <div class="product-card">
+                 <!-- Product Image -->
+                    <div class="product-image">
+                        <img src=@prod.imageURL alt="Diamond Ring">
+                    </div>
+
+                    <!-- Product Details -->
+                    <div class="product-details">
+                        <h2>@prod.name</h2>
+                        <p><strong>Description:</strong> @prod.description</p>
+                        <p class="price">@prod.price</p>
+                        <p><strong>Category:</strong> @prod.category</p>
+                        <p class="stock">In Stock: @prod.stockQuantity</p>
+                        <p>quantity needed</p>
+                        <input type="number"  id="item-quantity-@prod._id.toString" min="1"  value="1" required/>
+                        <div class="add-buttons">
+                            @helper.form(action = routes.HomeController.addCart, 'id -> s"cart-form-${prod._id.toString}"){
+                                @helper.inputText(cartForm("quantity"), 'type -> "hidden", 'id -> s"cartQuantity-${prod._id.toString}")
+                                @helper.inputText(cartForm("userId"), 'type -> "hidden", 'id -> s"cartUserId-${prod._id.toString}")
+                                @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> s"cartProductId-${prod._id.toString}")
+                                <button type="button" onclick="addToCart('@id', '@(prod._id.toString)')" >Add To Cart</button>
+                            }
+                            <button class="buy-button" >Buy Now</button>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+        <footer class="footer">
+            <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
+        </footer>
+        <script>
+            function addToCart(userId, productId){
+                const num = document.getElementById(`item-quantity-${productId}`).value
+                const form = document.getElementById(`cart-form-${productId}`)
+                console.log("called function")
+                document.getElementById(`cartQuantity-${productId}`).value = num
+                document.getElementById(`cartUserId-${productId}`).value = userId
+                document.getElementById(`cartProductId-${productId}`).value= productId
+                form.submit()
+            }
+        </script>
+    </div>
+}
+}
+
