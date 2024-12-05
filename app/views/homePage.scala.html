@@ -6,13 +6,15 @@
 <h1 xmlns="http://www.w3.org/1999/html">"no products found"</h1>
 }else{
     <header class="header">
+        <a href="@routes.HomeController.home(id)">
         <div class="logo">
             <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
         </div>
+        </a>
         <nav class="nav">
             <ul class="nav-list">
                 <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
-                <li class="nav-item"><a href="@routes.HomeController.user(id)" class="nav-link">Shop</a></li>
+                <li class="nav-item"><a href="@routes.HomeController.shop(id)" class="nav-link">Shop</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
                 <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
@@ -46,6 +48,7 @@
                         }
                         <button class="buy-button" >Buy Now</button>
                     </div>
+                    <a href="@routes.HomeController.getProduct(prod._id.toString)"> know more</a>
                 </div>
 
             </div>

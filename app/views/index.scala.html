@@ -4,9 +4,11 @@
 @main("Jwellery Store") {
 <div class="page-container">
   <header class="header">
+    <a href="@routes.HomeController.index()">
     <div class="logo">
       <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
     </div>
+    </a>
     <nav class="nav">
       <ul class="nav-list">
         <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>

@@ -71,7 +71,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       loginWithError =>Future(BadRequest(views.html.index(loginWithError)(signUpForm))),
       {
         case loginData(email, password) => mod.findUserId(email, password).map {
-          case Some(userId) => Redirect(routes.HomeController.user(userId.toString)).withSession("userId" ->userId.toString)
+          case Some(userId) => Redirect(routes.HomeController.shop(userId.toString)).withSession("userId" ->userId.toString)
           case None => Redirect(routes.HomeController.index()).flashing("error" -> "user not found")
         }
         case _ => Future(Ok("not possible login"))
@@ -87,7 +87,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       },
       {
         case signUpData(firstName, lastName, email, password) => {
-          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None)).map(userID => Redirect(routes.HomeController.user(userID)))
+          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None)).map(userID => Redirect(routes.HomeController.shop(userID)))
         }
         case _ => Future(Ok("not possible singnup"))
       }
@@ -95,7 +95,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
   }
-  def user(id: String): Action[AnyContent] = Action.async { implicit request =>
+  def shop(id: String): Action[AnyContent] = Action.async { implicit request =>
     request.session.get("userId").map {
       case id1 if (id1 == id) => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(id)(allProducts)(cartForm))}
       case _ => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
@@ -117,7 +117,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
     cartForm.bindFromRequest().fold(
       cartFormError => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(request.session.get("userId").getOrElse("not Possible"))(allProducts)(cartFormError))},
       {
-        case cartData(productId, userId, quantity) => mod.addItemInCart(productId, userId, quantity).map(_=>Redirect(routes.HomeController.user(userId)))
+        case cartData(productId, userId, quantity) => mod.addItemInCart(productId, userId, quantity).map(_=>Redirect(routes.HomeController.shop(userId)))
       }
     ).recover{
       case ex: Exception => InternalServerError("An error occured "+ ex.getMessage)
@@ -131,7 +131,18 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       )
       .getOrElse(Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first")))
       .recover{
-        case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
+        case ex: Exception => InternalServerError("An error ocuured" + ex.getMessage)
+      }
+  }
+
+  def getProduct(productId: String): Action[AnyContent] = Action.async{ implicit request =>
+    request.session.get("userId")
+      .map(userId => mod.getProduct(productId).map{
+        case Some(product) => Ok(views.html.product(userId)(product)(cartForm))
+        case None => BadRequest("Product doesn't exists")
+      }).getOrElse(Future(Redirect(routes.HomeController.index()).flashing(("error" -> "Login First"))))
+      .recover{
+        case ex: Exception => InternalServerError("An error occured" + ex.getMessage)
       }
   }
 

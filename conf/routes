@@ -5,7 +5,11 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index()
 
-GET     /user/:userId               controllers.HomeController.user(userId)
+GET     /shop/:userId               controllers.HomeController.shop(userId)
+
+GET     /home/:userId              controllers.HomeController.home(userId)
+
+GET     /product/:productId        controllers.HomeController.getProduct(productId)
 
 GET     /cartItems                  controllers.HomeController.getCartItems()
 
@@ -14,8 +18,6 @@ GET     /about                     controllers.HomeController.about()
 GET     /contact                   controllers.HomeController.contact()
 
 GET     /logout                    controllers.HomeController.logout()
-
-GET     /home/:userId              controllers.HomeController.home(userId)
 
 + nocsrf
 POST    /login                      controllers.HomeController.login()
