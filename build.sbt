@@ -12,3 +12,5 @@ libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "7.0.1
 
 //Adding mongoDB driver
 libraryDependencies += "org.mongodb.scala" %% "mongo-scala-driver" % "5.2.0"
+
+libraryDependencies += "com.stripe" % "stripe-java" % "26.5.1"

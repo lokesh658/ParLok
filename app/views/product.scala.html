@@ -8,6 +8,11 @@
                 <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
             </div>
         </a>
+        <a href="@routes.HomeController.user(id)">
+            <div class="logo">
+                User Profile
+            </div>
+        </a>
         <nav class="nav">
             <ul class="nav-list">
                 <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>

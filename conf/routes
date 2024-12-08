@@ -15,9 +15,14 @@ GET     /cartItems                  controllers.HomeController.getCartItems()
 
 GET     /about                     controllers.HomeController.about()
 
+GET     /user/:userId              controllers.HomeController.user(userId)
+
 GET     /contact                   controllers.HomeController.contact()
 
 GET     /logout                    controllers.HomeController.logout()
+
++ nocsrf
+POST  /addShippingAddress        controllers.HomeController.addShippingAddress()
 
 + nocsrf
 POST    /login                      controllers.HomeController.login()

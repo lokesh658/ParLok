@@ -8,7 +8,9 @@ import org.mongodb.scala.bson.codecs.Macros._
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
-import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.Filters._
+import org.mongodb.scala.model.Updates._
+import play.api.mvc.AnyContent
 
 import java.util.Locale.{Category, caseFoldLanguageTag}
 import scala.concurrent.Future
@@ -18,7 +20,7 @@ import scala.util.{Failure, Success, Using}
 
 case class Address(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String)
 
-case class User(_id: ObjectId, firstName: String, lastName: String, email: String, password: String, phoneNumber: Option[String], address:Option[Address])
+case class User(_id: ObjectId, firstName: String, lastName: String, email: String, password: String, phoneNumber: Option[String], address:Option[Address], shippingAddress: List[Address])
 
 case class Product(_id: ObjectId, name:String, description: String, price: Double, stockQuantity: Int, category: String, imageURL: String)
 
@@ -42,6 +44,11 @@ class model @Inject() (config: Configuration) {
   def insertUser(user1: User): Future[String] = {
     user.flatMap{userCollection =>userCollection.insertOne(user1).toFuture().map(result =>result.getInsertedId.toString)}
   }
+  def getUser(userId: String): Future[Option[User]] = {
+    user.flatMap{ userCollection =>
+      userCollection.find({equal("_id", new ObjectId(userId))}).headOption
+    }
+  }
   def findUserId(email: String, password: String): Future[Option[ObjectId]] = {
     user.flatMap{userCollection => {
       userCollection.find(org.mongodb.scala.bson.BsonDocument("email" -> email, "password" -> password)).headOption().map{
@@ -51,6 +58,10 @@ class model @Inject() (config: Configuration) {
     }
     }
   }
+  def addShippingAddress(userId: String)(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String) = {
+    user.flatMap{ userCollection => userCollection.updateOne({equal("_id",new ObjectId(userId))}, {addToSet("shippingAddress",Address(addressLine1, addressLine2, city, pincode, state, country))}).toFuture}
+  }
+
   def getAllProducts(): Future[List[Product]] = {
     product.flatMap{productCollection =>
       productCollection.find().toFuture().map(_.toList)

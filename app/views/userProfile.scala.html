@@ -1,0 +1,83 @@
+@import helper._
+@(id: String)(user: User)(addressForm: Form[addressData])(implicit requst: MessagesRequestHeader)
+
+@main("Jwellery Store") {
+<header class="header">
+    <a href="@routes.HomeController.home(id)">
+        <div class="logo">
+            <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
+        </div>
+    </a>
+    <a href="@routes.HomeController.user(id)">
+        <div class="logo">
+            User Profile
+        </div>
+    </a>
+    <nav class="nav">
+        <ul class="nav-list">
+            <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.shop(id)" class="nav-link">Shop</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
+        </ul>
+    </nav>
+</header>
+<div class="profile-container">
+
+    <!-- Profile Overview Section -->
+    <section class="profile-overview">
+        <div class="profile-header">
+            <h2>@user.firstName @user.lastName</h2>
+            <p class="email">@user.email</p>
+            <a href="#edit profile" class="btn-edit">Edit Profile</a>
+        </div>
+    </section>
+    <div class="address-container">
+        <h3>Manage Addresses</h3>
+
+        <!-- Address List -->
+        <ul class="address-list">
+            <!-- Address Item 1 -->
+            @for(address<-user.shippingAddress){
+                <li class="address-item">
+                    <div class="address-details">
+                        <p class="address-line">@address.addressLine1</p>
+                        <p class="address-line">@address.addressLine2</p>
+                        <p class="city-state">@address.city, address.state, address.country</p>
+                    </div>
+                </li>
+            }
+        </ul>
+        <!-- Add New Address Button -->
+        <div class="address-actions">
+            <button  onClick="toggleAddAddress()" class="btn btn-add">Add New Address</button>
+        </div>
+        <div class="shippingForm" id="shippingForm">
+            @form(action=routes.HomeController.addShippingAddress()){
+            @inputText(addressForm("addressLine1"))
+            @inputText(addressForm("addressLine2"))
+            @inputText(addressForm("city"))
+            @inputText(addressForm("pincode"))
+            @inputText(addressForm("state"))
+            @inputText(addressForm("country"))
+            <button type="submit"  class="buy-button"> Add Address</button>
+            }
+        </div>
+    </div>
+
+
+</div>
+
+<footer class="footer">
+    <p>&copy; 2024 Elegant Jewels. All rights reserved.</p>
+</footer>
+<script>
+    function toggleAddAddress(){
+        document.getElementById("shippingForm").classList.add("active")
+    }
+</script>
+</div>
+}
+

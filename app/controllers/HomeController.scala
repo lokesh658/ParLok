@@ -13,6 +13,11 @@ import scala.util._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import com.stripe.Stripe
+import com.stripe.model.checkout.Session
+import com.stripe.param.checkout.SessionCreateParams
+import play.api.Configuration
+
 
 
 
@@ -36,10 +41,16 @@ object cartData {
     Some(obj.productId, obj.userId, obj.quantity)
   }
 }
+case class addressData(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String)
+object addressData {
+  def unapply(obj: addressData): Option[(String, String, String, String, String, String)] = {
+    Some(obj.addressLine1, obj.addressLine2, obj.city, obj.pincode, obj.state, obj.country)
+  }
+}
 
 
 @Singleton
-class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) extends MessagesAbstractController(cc) {
+class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model, config: Configuration) extends MessagesAbstractController(cc) {
 
   val loginForm: Form[loginData] = Form(
     mapping(
@@ -64,6 +75,16 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       "quantity" -> number
     )(cartData.apply)(cartData.unapply)
   )
+  val addressForm: Form[addressData] = Form(
+    mapping(
+      "addressLine1" -> nonEmptyText,
+      "addressLine2" -> nonEmptyText,
+      "city" -> nonEmptyText,
+      "pincode" -> nonEmptyText,
+      "state" -> nonEmptyText,
+      "country" -> nonEmptyText
+    )(addressData.apply)(addressData.unapply)
+  )
 
   def index: Action[AnyContent] = Action { implicit request => Ok(views.html.index(loginForm)(signUpForm))}
   def login: Action[AnyContent] = Action.async { implicit request =>
@@ -87,13 +108,25 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       },
       {
         case signUpData(firstName, lastName, email, password) => {
-          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None)).map(userID => Redirect(routes.HomeController.shop(userID)))
+          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None, List.empty[Address])).map(userID => Redirect(routes.HomeController.shop(userID)))
         }
         case _ => Future(Ok("not possible singnup"))
       }
     ).recover{
       case ex: Exception => InternalServerError("An error ocuured" +ex.getMessage)
     }
+  }
+  def user(userId: String): Action[AnyContent] = Action.async{ implicit request =>
+    request.session.get("userId").map{
+      case id: String if(id == userId) => mod.getUser(userId).map{
+        case Some(user) => Ok(views.html.userProfile(userId)(user)(addressForm))
+        case None => BadRequest("user Not Found")
+      }
+      case _ => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login First"))
+    }.getOrElse( Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login First")))
+      .recover{
+        case ex: Exception => InternalServerError("An error occurred" + ex.getMessage)
+      }
   }
   def shop(id: String): Action[AnyContent] = Action.async { implicit request =>
     request.session.get("userId").map {
@@ -118,6 +151,7 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
       cartFormError => mod.getAllProducts().map{allProducts =>Ok(views.html.homePage(request.session.get("userId").getOrElse("not Possible"))(allProducts)(cartFormError))},
       {
         case cartData(productId, userId, quantity) => mod.addItemInCart(productId, userId, quantity).map(_=>Redirect(routes.HomeController.shop(userId)))
+        case _ => Future(BadRequest("not possible"))
       }
     ).recover{
       case ex: Exception => InternalServerError("An error occured "+ ex.getMessage)
@@ -145,6 +179,32 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model) ex
         case ex: Exception => InternalServerError("An error occured" + ex.getMessage)
       }
   }
+  def addShippingAddress(): Action[AnyContent] = Action.async{ implicit request =>
+    addressForm.bindFromRequest().fold(
+      formWithError => request.session.get("userId").map{
+        userId => mod.getUser(userId).map{
+          case Some(user) => BadRequest(views.html.userProfile(userId)(user)(formWithError))
+          case None => BadRequest("user not found")
+        }
+      }.getOrElse(Future(Redirect(routes.HomeController.index()).flashing(("error" -> "Login First")))),
+      {
+        case addressData(addressLine1, addressLine2, city, pincode, state, country) => mod.addShippingAddress(request.session.get("userId").getOrElse("random"))(addressLine1, addressLine2, city, pincode, state, country).flatMap {
+          _ =>
+            request.session.get("userId").map {
+              userId =>
+                mod.getUser(userId).map {
+                  case Some(user) => BadRequest(views.html.userProfile(userId)(user)(addressForm))
+                  case None => BadRequest("user not found")
+                }
+            }.getOrElse(Future(Redirect(routes.HomeController.index()).flashing(("error" -> "Login First"))))
+        }
+        case _ => Future(BadRequest("not possible"))
+      }
+    ).recover{
+        case ex: Exception =>  InternalServerError("An error ocuured" + ex.getMessage)
+    }
+  }
+
 
   def about(): Action[AnyContent] = Action{ implicit request =>
    Ok(views.html.about(request.session.get("userId").getOrElse("random")))
