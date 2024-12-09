@@ -14,6 +14,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import com.stripe.Stripe
+import com.stripe.model.Price
+import com.stripe.param.PriceCreateParams
+import com.stripe.model.{Product => stripeProduct}
+import com.stripe.param.ProductCreateParams
 import com.stripe.model.checkout.Session
 import com.stripe.param.checkout.SessionCreateParams
 import play.api.Configuration
@@ -205,6 +209,106 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model, co
     }
   }
 
+  def buyProduct(): Action[AnyContent] = Action.async{ implicit request =>
+    cartForm.bindFromRequest().fold(
+      formWithError => Future(BadRequest("quantity is not a number")),
+      {
+        case cartData(productId, userId, quantity) =>{
+          mod.getProduct(productId).flatMap{
+            case Some(product) => {
+              Stripe.apiKey = config.get[String]("Payment.Secret_Key")
+               val params: Future[SessionCreateParams] = for{
+                prod <- {
+                  val productParams: ProductCreateParams = ProductCreateParams.builder()
+                    .setName(product.name)
+                    .setDescription(product.description)
+                    .setActive(true)
+                    .build()
+                  Future(stripeProduct.create(productParams))
+                }
+                price <- {
+                  val priceParams: PriceCreateParams = PriceCreateParams.builder()
+                    .setUnitAmount(product.price.toLong)
+                    .setCurrency("usd")
+                    .setProduct(prod.getId)
+                    .build()
+                  Future(Price.create(priceParams))
+                }
+              } yield {
+                SessionCreateParams.builder()
+                  .setMode(SessionCreateParams.Mode.PAYMENT)
+                  .setSuccessUrl(s"http://localhost:9000/home/$userId")
+                  .setCancelUrl(s"http://localhost:9000/shop/$userId")
+                  .setCurrency("usd")
+                  .addLineItem(
+                    SessionCreateParams.LineItem.builder()
+                      .setPrice(price.getId)
+                      .setQuantity(quantity.toInt)
+                      .build()
+                  ).build()
+              }
+              val session: Future[Session] = params.flatMap(parameters => Future(Session.create(parameters)))
+              session.map(_.getUrl).map(url => Redirect(url))
+            }
+            case None => Future(BadRequest("product not found"))
+          }
+        }
+        case _ => Future(BadRequest("not possible"))
+      }
+    ).recover{
+        case ex: Exception => InternalServerError("An error occured" +ex.getMessage)
+      }
+  }
+
+  def checkOut(userId: String): Action[AnyContent] = Action.async{ implicit request =>
+    Stripe.apiKey = config.get[String]("Payment.Secret_Key")
+    val paramsBuilder: SessionCreateParams.Builder = SessionCreateParams.builder()
+      .setMode(SessionCreateParams.Mode.PAYMENT)
+      .setSuccessUrl(s"http://localhost:9000/home/$userId")
+      .setCancelUrl(s"http://localhost:9000/shop/$userId")
+      .setCurrency("usd")
+
+    val params: Future[SessionCreateParams] = mod.getCartItems(userId).flatMap{items =>
+      items.foldLeft(Future(paramsBuilder)){
+        case (paramsBuild,(cartId,product, quantity)) => {
+          for{
+            prod <- {
+              val productParams: ProductCreateParams = ProductCreateParams.builder()
+                .setName(product.name)
+                .setDescription(product.description)
+                .setActive(true)
+                .build()
+              Future(stripeProduct.create(productParams))
+            }
+            price <- {
+              val priceParams: PriceCreateParams = PriceCreateParams.builder()
+                .setUnitAmount(product.price.toLong)
+                .setCurrency("usd")
+                .setProduct(prod.getId)
+                .build()
+              Future(Price.create(priceParams))
+            }
+          } yield {
+            paramsBuild.map(_.addLineItem(
+              SessionCreateParams.LineItem.builder()
+                .setQuantity(quantity)
+                .setPrice(price.getId)
+                .build()
+            ))
+          }
+        }.flatten
+      }.map{_.build()}
+    }
+    val session: Future[Session] = params.flatMap{paramters =>Future(Session.create(paramters))}
+    session.map(_.getUrl).map(url => Redirect(url)).recover{
+      case ex: Exception => InternalServerError("An error occured" +ex.getMessage)
+    }
+  }
+  def removeItemFromCart(cartItemId: String): Action[AnyContent] = Action.async{ implicit request =>
+    mod.removeFromCart(cartItemId).map{
+      _ => Redirect(routes.HomeController.getCartItems())
+    }
+  }
 
   def about(): Action[AnyContent] = Action{ implicit request =>
    Ok(views.html.about(request.session.get("userId").getOrElse("random")))

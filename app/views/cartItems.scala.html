@@ -1,7 +1,29 @@
-@(id: String)(product: List[(Product,Int)])
+@(id: String)(product: List[(String, Product,Int)])(implicit request: MessagesRequestHeader)
 
 @main("Jwellery Store") {
 @if(product.isEmpty){
+<header class="header">
+    <a href="@routes.HomeController.home(id)">
+        <div class="logo">
+            <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
+        </div>
+    </a>
+    <a href="@routes.HomeController.user(id)">
+        <div class="logo">
+            User Profile
+        </div>
+    </a>
+    <nav class="nav">
+        <ul class="nav-list">
+            <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.shop(id)" class="nav-link">Shop</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.logout()" class="nav-link">Logout</a></li>
+        </ul>
+    </nav>
+</header>
 <h1 xmlns="http://www.w3.org/1999/html">"no products found"</h1>
 }else{
 <header class="header">
@@ -27,13 +49,15 @@
     </nav>
 </header>
 <div class="products-container">
-    @for((prod,quantity) <- product){
+    @for((cartId,prod,quantity) <- product){
         <div class="product-container">
             <!-- Product Image -->
             <div class="product-image">
                 <img src=@prod.imageURL alt="Diamond Ring">
             </div>
-
+            @helper.form(action=routes.HomeController.removeItemFromCart(cartId)){
+                <button  type="submit" class="btn-primary">remove from cart</button>
+            }
             <!-- Product Details -->
             <div class="product-details">
                 <h2>@prod.name</h2>
@@ -41,12 +65,13 @@
                 <p class="price">@prod.price</p>
                 <p><strong>Category:</strong> @prod.category</p>
                 <p>@quantity quantity needed </p>
-                <button class="buy-button" >Order Now</button>
                 <a href="@routes.HomeController.getProduct(prod._id.toString)"> know more</a>
                 </div>
             </div>
-
         </div>
+    }
+    @helper.form(action=routes.HomeController.checkOut(id)){
+        <button  class="btn-primary">CheckOut</button>
     }
 </div>
 }

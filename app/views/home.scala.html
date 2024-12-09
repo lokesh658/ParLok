@@ -61,7 +61,12 @@
                                 @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> s"cartProductId-${prod._id.toString}")
                                 <button type="button" onclick="addToCart('@id', '@(prod._id.toString)')" >Add To Cart</button>
                             }
-                            <button class="buy-button" >Buy Now</button>
+                            @helper.form(action = routes.HomeController.buyProduct, 'id -> s"buy-form"){
+                                @helper.inputText(cartForm("quantity"), 'type -> "hidden", 'id -> s"buyQuantity-${prod._id.toString}")
+                                @helper.inputText(cartForm("userId"), 'type -> "hidden", 'id -> s"buyUserId-${prod._id.toString}")
+                                @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> s"buyProductId-${prod._id.toString}")
+                                <button class="buy-button" onclick="buyItem('@id', '@(prod._id.toString)')">Buy Now</button>
+                            }
                         </div>
                         <a href="@routes.HomeController.getProduct(prod._id.toString)"> know more</a>
                     </div>
@@ -80,6 +85,15 @@
                 document.getElementById(`cartQuantity-${productId}`).value = num
                 document.getElementById(`cartUserId-${productId}`).value = userId
                 document.getElementById(`cartProductId-${productId}`).value= productId
+                form.submit()
+            }
+            function buyItem(userId, productId){
+                const num = document.getElementById(`item-quantity-${productId}`).value
+                const form = document.getElementById(`buy-form-${productId}`)
+                console.log("called function")
+                document.getElementById(`buyQuantity-${productId}`).value = num
+                document.getElementById(`buyUserId-${productId}`).value = userId
+                document.getElementById(`buyProductId-${productId}`).value= productId
                 form.submit()
             }
         </script>

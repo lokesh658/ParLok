@@ -77,16 +77,26 @@ class model @Inject() (config: Configuration) {
       productCollection.find(equal("_id",new ObjectId(productId))).headOption()
     }
   }
-  def getCartItems(userId: String): Future[List[(Product,Int)]] = {
+  def getCartItems(userId: String): Future[List[(String, Product,Int)]] = {
     cart.flatMap{ cartCollection =>
       cartCollection.find(equal("userId",userId)).toFuture.map(_.toList).flatMap(
         itemList => Future.sequence(itemList.map{
-          case CartItem(_, _, productId, quantity) => getProduct(productId).map{
-            case Some(product) => Some(product, quantity)
+          case CartItem(cartId, _, productId, quantity) => getProduct(productId).map{
+            case Some(product) => Some(cartId.toString, product, quantity)
             case None => None
           }
         }).map(_.flatten)
       )
+    }
+  }
+  def removeFromCart(cartItemId: String) = {
+    cart.flatMap{cartCollection =>
+      cartCollection.deleteOne({equal("_id",new ObjectId(cartItemId))}).toFuture()
+    }
+  }
+  def clearCart(userId: String) = {
+    cart.flatMap{cartCollection =>
+      cartCollection.deleteMany({equal("userId",userId)}).toFuture()
     }
   }
 }

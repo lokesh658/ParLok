@@ -46,7 +46,12 @@
             @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> "cartProductId")
             <button type="button" onclick="addToCart('@id', '@(product._id.toString)')" >Add To Cart</button>
             }
-            <button class="buy-button" >Buy Now</button>
+            @helper.form(action = routes.HomeController.buyProduct, 'id -> s"buy-form"){
+            @helper.inputText(cartForm("quantity"), 'type -> "hidden", 'id -> "buyQuantity")
+            @helper.inputText(cartForm("userId"), 'type -> "hidden", 'id -> "buyUserId")
+            @helper.inputText(cartForm("productId"), 'type -> "hidden", 'id -> "buyProductId")
+            <button class="buy-button" onclick="buyItem('@id', '@(product._id.toString)')">Buy Now</button>
+            }
         </div>
     </div>
 
@@ -63,6 +68,15 @@
             document.getElementById(`cartQuantity`).value = num
             document.getElementById(`cartUserId`).value = userId
             document.getElementById(`cartProductId`).value= productId
+            form.submit()
+        }
+        function buyItem(userId, productId){
+            const num = document.getElementById(`item-quantity`).value
+            const form = document.getElementById(`buy-form`)
+            console.log("called function")
+            document.getElementById(`buyQuantity`).value = num
+            document.getElementById(`buyUserId`).value = userId
+            document.getElementById(`buyProductId`).value= productId
             form.submit()
         }
     </script>
