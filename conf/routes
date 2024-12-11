@@ -3,19 +3,19 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET     /                           controllers.HomeController.index()
+GET     /                          controllers.HomeController.index()
 
-GET     /shop               controllers.HomeController.shop()
+GET     /shop                      controllers.HomeController.shop()
 
-GET     /home              controllers.HomeController.home()
+GET     /home                      controllers.HomeController.home()
 
 GET     /product/:productId        controllers.HomeController.getProduct(productId)
 
-GET     /cartItems                  controllers.HomeController.getCartItems()
+GET     /cartItems                 controllers.HomeController.getCartItems()
 
 GET     /about                     controllers.HomeController.about()
 
-GET     /user             controllers.HomeController.user()
+GET     /user                      controllers.HomeController.user()
 
 GET     /contact                   controllers.HomeController.contact()
 
@@ -25,22 +25,22 @@ GET     /logout                    controllers.HomeController.logout()
 POST   /buyProduct                 controllers.HomeController.buyProduct()
 
 +nocsrf
-POST     /checkOut          controllers.HomeController.checkOut()
+POST     /checkOut                 controllers.HomeController.checkOut()
 
 + nocsrf
-POST  /addShippingAddress        controllers.HomeController.addShippingAddress()
+POST  /addShippingAddress          controllers.HomeController.addShippingAddress()
 
 + nocsrf
-POST    /login                      controllers.HomeController.login()
+POST    /login                     controllers.HomeController.login()
 
 +nocsrf
-POST    /signUp                     controllers.HomeController.signUp()
+POST    /signUp                    controllers.HomeController.signUp()
 
 +nocsrf
-POST    /addItemInCart              controllers.HomeController.addCart()
+POST    /addItemInCart             controllers.HomeController.addCart()
 
 +nocsrf
-POST /cartItems/:cartItemId       controllers.HomeController.removeItemFromCart(cartItemId)
+POST /cartItems/:cartItemId        controllers.HomeController.removeItemFromCart(cartItemId)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

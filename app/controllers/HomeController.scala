@@ -1,25 +1,22 @@
 package controllers
 
+import com.stripe.Stripe
+import com.stripe.model.checkout.Session
+import com.stripe.model.{Price, Product => stripeProduct}
+import com.stripe.param.checkout.SessionCreateParams
+import com.stripe.param.{PriceCreateParams, ProductCreateParams}
+import models.{Address, User, model}
+import org.mongodb.scala.bson.ObjectId
+import play.api.Configuration
+import play.api.data.Forms._
+import play.api.data._
+import play.api.data.validation.Constraints._
 import play.api.mvc._
 
 import javax.inject._
-import models.{Address, CartItem, Product, User, model}
-import org.mongodb.scala.bson.ObjectId
-import play.api.data._
-import play.api.data.Forms._
-import play.api.data.validation.Constraints._
-
-import scala.util._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
-import com.stripe.Stripe
-import com.stripe.model.Price
-import com.stripe.param.PriceCreateParams
-import com.stripe.model.{Product => stripeProduct}
-import com.stripe.param.ProductCreateParams
-import com.stripe.model.checkout.Session
-import com.stripe.param.checkout.SessionCreateParams
-import play.api.Configuration
+import scala.util._
 
 
 // case classes for forms
@@ -63,9 +60,8 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model, co
     def apply(request: Request[A]): Future[Result] = {
       val userId: String = request.session.get("userId").getOrElse((new ObjectId()).toString)
       mod.isUserExist(userId).flatMap {
-        case Some(us) => action(request)
-        case None =>
-          Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
+        case Some(_) => action(request)
+        case None => Future(Redirect(routes.HomeController.index()).flashing("error" -> "Login first"))
       }
     }
 
@@ -133,7 +129,8 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model, co
       },
       {
         case signUpData(firstName, lastName, email, password) => {
-          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None, List.empty[Address])).map(userId => Redirect(routes.HomeController.shop()).withSession("userId" -> userId))
+          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None, List.empty[Address])).map(userId =>
+            Redirect(routes.HomeController.shop()).withSession("userId" -> userId))
         }
         case _ => Future(Ok("not possible singnup"))
       }

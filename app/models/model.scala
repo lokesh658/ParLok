@@ -1,22 +1,20 @@
 package models
 
 import com.google.inject.{Inject, Singleton}
-import play.api._
-import play.api.Configuration
-import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase, classTagToClassOf}
-import org.mongodb.scala.bson.codecs.Macros._
 import org.bson.codecs.configuration.CodecRegistries.{fromProviders, fromRegistries}
 import org.mongodb.scala.MongoClient.DEFAULT_CODEC_REGISTRY
 import org.mongodb.scala.bson.ObjectId
+import org.mongodb.scala.bson.codecs.Macros._
 import org.mongodb.scala.model.Filters._
 import org.mongodb.scala.model.Updates._
-import play.api.mvc.AnyContent
+import org.mongodb.scala.{MongoClient, MongoCollection, MongoDatabase}
+import play.api._
 
-import java.util.Locale.{Category, caseFoldLanguageTag}
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Failure, Success, Using}
+import scala.concurrent.Future
 
+// adding encryption in password
+import org.mindrot.jbcrypt.BCrypt
 
 case class Address(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String)
 
@@ -42,16 +40,19 @@ class model @Inject() (config: Configuration) {
   val cart: Future[MongoCollection[CartItem]] =db.map(_.getCollection("cart"))
 
   def insertUser(user1: User): Future[String] = {
-    user.flatMap{userCollection =>userCollection.insertOne(user1).toFuture().map(result =>result.getInsertedId.toString)}
+    user.flatMap{userCollection =>
+      userCollection.insertOne{User(user1._id, user1.firstName, user1.lastName, user1.email,BCrypt.hashpw(user1.password,config.get[String]("Pass.Salt")) , user1.phoneNumber, user1.address, user1.shippingAddress)}
+        .toFuture().map{result => result.getInsertedId.asObjectId().getValue.toString}
+    }
   }
   def getUser(userId: String): Future[Option[User]] = {
     user.flatMap{ userCollection =>
-      userCollection.find({equal("_id", new ObjectId(userId))}).headOption
+      userCollection.find({equal("_id", new ObjectId(userId))}).headOption()
     }
   }
   def findUserId(email: String, password: String): Future[Option[ObjectId]] = {
     user.flatMap{userCollection => {
-      userCollection.find(org.mongodb.scala.bson.BsonDocument("email" -> email, "password" -> password)).headOption().map{
+      userCollection.find{and(equal("email", email), equal("password", BCrypt.hashpw(password,config.get[String]("Pass.Salt"))))}.headOption().map{
         case Some(tempUser) => Some(tempUser._id)
         case None => None
       }
@@ -59,15 +60,14 @@ class model @Inject() (config: Configuration) {
     }
   }
   def isUserExist(userId: String): Future[Option[String]] = {
-    user.flatMap{ userCollection =>
-      userCollection.find{equal("_id", new ObjectId(userId))}.headOption().map{
-        case Some(user) => Some(userId)
+   user.flatMap{ userCollection => userCollection.find({equal("_id", new ObjectId(userId))}).headOption().map{
+        case Some(_) => Some(userId)
         case None => None
       }
     }
   }
   def addShippingAddress(userId: String)(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String) = {
-    user.flatMap{ userCollection => userCollection.updateOne({equal("_id",new ObjectId(userId))}, {addToSet("shippingAddress",Address(addressLine1, addressLine2, city, pincode, state, country))}).toFuture}
+    user.flatMap{ userCollection => userCollection.updateOne({equal("_id",new ObjectId(userId))}, {addToSet("shippingAddress",Address(addressLine1, addressLine2, city, pincode, state, country))}).toFuture()}
   }
 
   def getAllProducts(): Future[List[Product]] = {
@@ -87,7 +87,7 @@ class model @Inject() (config: Configuration) {
   }
   def getCartItems(userId: String): Future[List[(String, Product,Int)]] = {
     cart.flatMap{ cartCollection =>
-      cartCollection.find(equal("userId",userId)).toFuture.map(_.toList).flatMap(
+      cartCollection.find(equal("userId",userId)).toFuture().map(_.toList).flatMap(
         itemList => Future.sequence(itemList.map{
           case CartItem(cartId, _, productId, quantity) => getProduct(productId).map{
             case Some(product) => Some(cartId.toString, product, quantity)
