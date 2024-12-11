@@ -129,8 +129,10 @@ class HomeController @Inject() (cc: MessagesControllerComponents)(mod: model, co
       },
       {
         case signUpData(firstName, lastName, email, password) => {
-          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None, List.empty[Address])).map(userId =>
-            Redirect(routes.HomeController.shop()).withSession("userId" -> userId))
+          mod.insertUser(User(new ObjectId(), firstName, lastName, email, password, None, None, List.empty[Address])).map{
+            case Right(userId) => Redirect(routes.HomeController.shop()).withSession("userId" -> userId)
+            case Left(error)  => BadRequest(error)
+          }
         }
         case _ => Future(Ok("not possible singnup"))
       }

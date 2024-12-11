@@ -39,10 +39,13 @@ class model @Inject() (config: Configuration) {
   val product: Future[MongoCollection[Product]] = db.map(_.getCollection("product"))
   val cart: Future[MongoCollection[CartItem]] =db.map(_.getCollection("cart"))
 
-  def insertUser(user1: User): Future[String] = {
+  def insertUser(user1: User): Future[Either[String,String]] = {
     user.flatMap{userCollection =>
-      userCollection.insertOne{User(user1._id, user1.firstName, user1.lastName, user1.email,BCrypt.hashpw(user1.password,config.get[String]("Pass.Salt")) , user1.phoneNumber, user1.address, user1.shippingAddress)}
-        .toFuture().map{result => result.getInsertedId.asObjectId().getValue.toString}
+      userCollection.find({equal("email",user1.email)}).headOption().flatMap{
+        case Some(user) => Future.successful(Left(s"user exist with this email with name ${user.firstName +" " +user.lastName}"))
+        case None => userCollection.insertOne{User(user1._id, user1.firstName, user1.lastName, user1.email,BCrypt.hashpw(user1.password,BCrypt.gensalt()) , user1.phoneNumber, user1.address, user1.shippingAddress)}
+          .toFuture().map{result => Right(result.getInsertedId.asObjectId().getValue.toString)}
+      }
     }
   }
   def getUser(userId: String): Future[Option[User]] = {
@@ -52,8 +55,8 @@ class model @Inject() (config: Configuration) {
   }
   def findUserId(email: String, password: String): Future[Option[ObjectId]] = {
     user.flatMap{userCollection => {
-      userCollection.find{and(equal("email", email), equal("password", BCrypt.hashpw(password,config.get[String]("Pass.Salt"))))}.headOption().map{
-        case Some(tempUser) => Some(tempUser._id)
+      userCollection.find{equal("email", email)}.headOption().map{
+        case Some(tempUser) if(BCrypt.checkpw(password,tempUser.password))=> Some(tempUser._id)
         case None => None
       }
     }
