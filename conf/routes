@@ -5,9 +5,9 @@
 # An example controller showing a sample home page
 GET     /                           controllers.HomeController.index()
 
-GET     /shop/:userId               controllers.HomeController.shop(userId)
+GET     /shop               controllers.HomeController.shop()
 
-GET     /home/:userId              controllers.HomeController.home(userId)
+GET     /home              controllers.HomeController.home()
 
 GET     /product/:productId        controllers.HomeController.getProduct(productId)
 
@@ -15,7 +15,7 @@ GET     /cartItems                  controllers.HomeController.getCartItems()
 
 GET     /about                     controllers.HomeController.about()
 
-GET     /user/:userId              controllers.HomeController.user(userId)
+GET     /user             controllers.HomeController.user()
 
 GET     /contact                   controllers.HomeController.contact()
 
@@ -25,7 +25,7 @@ GET     /logout                    controllers.HomeController.logout()
 POST   /buyProduct                 controllers.HomeController.buyProduct()
 
 +nocsrf
-POST     /checkOut/:userId          controllers.HomeController.checkOut(userId)
+POST     /checkOut          controllers.HomeController.checkOut()
 
 + nocsrf
 POST  /addShippingAddress        controllers.HomeController.addShippingAddress()

@@ -58,6 +58,14 @@ class model @Inject() (config: Configuration) {
     }
     }
   }
+  def isUserExist(userId: String): Future[Option[String]] = {
+    user.flatMap{ userCollection =>
+      userCollection.find{equal("_id", new ObjectId(userId))}.headOption().map{
+        case Some(user) => Some(userId)
+        case None => None
+      }
+    }
+  }
   def addShippingAddress(userId: String)(addressLine1:String, addressLine2: String, city: String, pincode: String, state:String, country: String) = {
     user.flatMap{ userCollection => userCollection.updateOne({equal("_id",new ObjectId(userId))}, {addToSet("shippingAddress",Address(addressLine1, addressLine2, city, pincode, state, country))}).toFuture}
   }
@@ -89,13 +97,14 @@ class model @Inject() (config: Configuration) {
       )
     }
   }
-  def removeFromCart(cartItemId: String) = {
+  def removeFromCart(cartItemId: String,userId: String) = {
     cart.flatMap{cartCollection =>
-      cartCollection.deleteOne({equal("_id",new ObjectId(cartItemId))}).toFuture()
+      cartCollection.deleteOne({and(equal("_id",new ObjectId(cartItemId)),equal("userId",userId))}).toFuture()
     }
   }
   def clearCart(userId: String) = {
     cart.flatMap{cartCollection =>
+      println(userId)
       cartCollection.deleteMany({equal("userId",userId)}).toFuture()
     }
   }

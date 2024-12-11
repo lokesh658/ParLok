@@ -3,20 +3,20 @@
 
 @main("Jwellery Store") {
 <header class="header">
-    <a href="@routes.HomeController.home(id)">
+    <a href="@routes.HomeController.home()">
         <div class="logo">
             <img src=@routes.Assets.versioned("images/logo.jpg") alt="Logo" class="logo-img" height="16" width="16"/>
         </div>
     </a>
-    <a href="@routes.HomeController.user(id)">
+    <a href="@routes.HomeController.user()">
         <div class="logo">
             User Profile
         </div>
     </a>
     <nav class="nav">
         <ul class="nav-list">
-            <li class="nav-item"><a href="@routes.HomeController.home(id)" class="nav-link">Home</a></li>
-            <li class="nav-item"><a href="@routes.HomeController.shop(id)" class="nav-link">Shop</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.home()" class="nav-link">Home</a></li>
+            <li class="nav-item"><a href="@routes.HomeController.shop()" class="nav-link">Shop</a></li>
             <li class="nav-item"><a href="@routes.HomeController.about()" class="nav-link">About</a></li>
             <li class="nav-item"><a href="@routes.HomeController.contact()" class="nav-link">Contact</a></li>
             <li class="nav-item"><a href="@routes.HomeController.getCartItems()" class="nav-link">Cart</a></li>
@@ -45,7 +45,7 @@
                     <div class="address-details">
                         <p class="address-line">@address.addressLine1</p>
                         <p class="address-line">@address.addressLine2</p>
-                        <p class="city-state">@address.city, address.state, address.country</p>
+                        <p class="city-state">@address.city, @address.state, @address.country</p>
                     </div>
                 </li>
             }
@@ -67,7 +67,6 @@
         </div>
     </div>
 
-
 </div>
 
 <footer class="footer">
@@ -77,6 +76,7 @@
     function toggleAddAddress(){
         document.getElementById("shippingForm").classList.add("active")
     }
+
 </script>
 </div>
 }
